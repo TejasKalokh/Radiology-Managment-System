@@ -1,0 +1,486 @@
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f9;
+  color: #333;
+  scroll-behavior: smooth;
+}
+
+/* Ensuring all headings use Times New Roman */
+h1, h2, h3, label {
+  font-family: "Times New Roman", Times, serif;
+}
+
+.appointments-section > h2 {
+  display: flex;
+  justify-content: center;
+
+}
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #0073e6, #005bb5);
+  color: white;
+  padding: 15px 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-bottom: 2px solid #004a8d;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.logo img {
+  height: 50px; /* Adjust size as needed */
+}
+
+.header-left {
+  position: relative;
+  flex: 1;
+  text-align: center;
+}
+
+.header-left h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+/* Notification Bell */
+.notification {
+  position: relative;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.notification i {
+  color: white;
+  transition: 0.3s;
+}
+
+.notification:hover i {
+  color: #ffcc00;
+}
+
+/* Notification Badge */
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  width: 20px; /* Set a fixed width */
+  height: 20px; /* Set a fixed height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Makes it a perfect circle */
+  line-height: 1;
+}
+
+
+/* Authentication Buttons */
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-buttons a {
+  text-decoration: none; /* Removes underline */
+}
+
+.rc-button {
+  background: white;
+  color: #0073e6;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 130px;
+  height: 45px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button:hover {
+  background: #005bb5;
+  color: white;
+}
+
+
+/* Main Content */
+.appointments-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  padding: 20px;
+  gap: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  height: auto;
+  min-height: 700px;
+  padding-top: 90px;
+}
+
+.appointments-section {
+  width: 50%;
+    max-width: 50vw;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    min-height: 300px;
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    max-height: 600px;
+    position: relative;
+    text-align: center;
+    overflow-y: auto;
+    scrollbar-width: none;
+    /*Firefox*/
+    -ms-overflow-style: none;
+    /*IE & Edge*/
+}
+
+.appointments-container,
+.appointments-section {
+  margin-bottom: 0;
+}
+
+.appointments-section tbody {
+  display: block;
+  max-height: 500px;
+  overflow-y: auto;
+  width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Sticky Heading */
+.appointments-header {
+  position: sticky;
+  top: 0;
+  padding: 12px;
+  width: 100%;
+  font-size: 18px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #0073e6, #005bb5);
+  color: white;
+  z-index: 10;
+  /* Keep above table */
+  border-radius: 10px 10px 0 0;
+  text-align: center;
+}
+
+.appointments-section h2 {
+  margin: 0;
+}
+
+/* Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+table thead {
+  position: sticky;
+  /* Push below section header */
+  background: #005bb5;
+  color: white;
+  z-index: 9;
+}
+
+table th, table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table th {
+  background: #005bb5;
+  color: white;
+  font-family: "Times New Roman", Times, serif;
+}
+
+tbody {
+  display: block;
+  max-height: 500px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+thead, tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+table th {
+  background: #005bb5;
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+}
+
+table th,
+table td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  overflow: hidden;
+}
+
+/* Scrollbars */
+.appointments-container, 
+.appointments-section tbody {
+  overflow: auto; /* Enable scrolling */
+  -ms-overflow-style: none;  /* Hide scrollbar in IE and Edge */
+  scrollbar-width: none;  /* Hide scrollbar in Firefox */
+}
+
+.appointments-container::-webkit-scrollbar, 
+.appointments-section tbody::-webkit-scrollbar, .appointments-section::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
+
+/* Firefox Scrollbar */
+.appointments-section {
+  scrollbar-width: thin;
+  scrollbar-color: #bbb transparent;
+  overflow: auto; /* Enable scrolling */
+  -ms-overflow-style: none;  /* Hide scrollbar in IE and Edge */
+  scrollbar-width: none;  /* Hide scrollbar in Firefox */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .appointments-container {
+      flex-direction: column;
+  }
+
+  .appointments-section {
+      width: 100%;
+  }
+}
+
+
+/* Button */
+/* button {
+  background-color: #0073e6;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+}
+
+button:hover {
+  background-color: #005bb5;
+} */
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  header {
+      flex-direction: column;
+      text-align: center;
+  }
+
+  header div {
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+  }
+
+  .appointments-container {
+      flex-direction: column;
+      gap: 20px;
+  }
+
+  .appointments-section {
+      width: 100%;
+  }
+}
+
+/* Forms inside sections */
+.reception-appointment-form {
+  background: #fff;
+  padding: 20px;
+  width: 90vw;
+  margin: 30px auto 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Heading Styling */
+.reception-appointment-form h3 {
+  background-color: #0073e6; /* Blue background */
+  color: white;
+  text-align: center;
+  padding: 15px;
+  margin: -20px -20px 20px -20px; /* Extends full width of container */
+  border-radius: 10px 10px 0 0; /* Rounded corners for top */
+  font-size: 20px;
+  font-family: "Times New Roman", Times, serif;
+}
+
+
+/* Form Group Styling */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Aligning fields in one line */
+.inline-fields {
+  display: flex;
+  gap: 10px;
+}
+
+.inline-fields div {
+  flex: 1;
+}
+
+
+
+/* Input Fields */
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+
+/* File Upload Styling */
+input[type="file"] {
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+}
+
+
+.form-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+/* Name Fields Inline */
+.name-fields {
+  display: flex;
+  gap: 10px;
+}
+
+.name-fields input {
+  flex: 1;
+}
+
+.form-group.address {
+  margin-bottom: 15px;
+}
+
+.form-group.address label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group.address input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+/* Increase Address Field Height */
+#address {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  font-size: 16px;
+  resize: vertical; /* Allow user to adjust height */
+}
+
+/* Button Styling */
+.submit-button {
+  background-color: #0073e6;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+}
+
+button:hover {
+  background-color: #005bb5;
+}
+
+
+/* 
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .name-fields {
+      flex-direction: column;
+  }
+}
+
+/* Hide scrollbars for all elements */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;  /* Hide scrollbar in IE and Edge */
+  scrollbar-width: none;  /* Hide scrollbar in Firefox */
+}
