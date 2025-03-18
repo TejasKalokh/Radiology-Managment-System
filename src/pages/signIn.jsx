@@ -29,28 +29,36 @@
 //   );
 // };
 
-// export default SignIn;
 import React from "react";
-import SignIn from "../assets/signin_vector.jpg"
-import signUp from "../pages/signUp"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
+import SignIn from "../assets/signin_vector.jpg";
 
 const Signin = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white">
-      <div className="flex bg-[#6EBFF6] rounded-2xl shadow-2xl overflow-hidden w-[800px]">
+    <div className="flex items-center justify-center min-h-screen bg-white relative px-4 sm:px-0">
+      {/* Back Arrow */}
+      <a
+        href="/"
+        className="absolute top-4 left-4 text-blue-500 text-3xl cursor-pointer"
+      >
+        <FontAwesomeIcon icon={faCircleLeft} />
+      </a>
+
+      <div className="flex flex-col sm:flex-row bg-[#6EBFF6] rounded-2xl shadow-2xl overflow-hidden w-full max-w-[800px]">
         {/* Left side with image */}
-        <div className="w-1/2 flex items-center justify-center p-6">
+        <div className="w-full sm:w-1/2 flex items-center justify-center p-6">
           <img
-            src={SignIn} 
+            src={SignIn}
             alt="Medical Staff"
-            className="w-full h-auto object-cover"
+            className="w-full max-w-[300px] h-auto object-cover"
           />
         </div>
-        
+
         {/* Right side with form */}
-        <div className="w-1/2 p-8">
+        <div className="w-full sm:w-1/2 p-8">
           <h2 className="text-2xl font-semibold text-center text-gray-700">SIGN IN</h2>
-          
+
           <form className="mt-4">
             <div>
               <label className="block text-gray-600 text-sm">Email</label>
@@ -77,9 +85,9 @@ const Signin = () => {
               Sign In
             </button>
           </form>
-          
+
           <p className="mt-4 text-center text-sm text-gray-600">
-            Don't have an account? <a href="/signUp" className="text-blue-500">SignUp</a>
+            Don't have an account? <a href="/signUp" className="text-blue-500">Sign Up</a>
           </p>
         </div>
       </div>

@@ -58,3 +58,11 @@ html, body {
 .test-bg {
   @apply bg-red-500 text-white text-center p-4;
 }
+@keyframes subtle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); } /* Reduced bounce height */
+}
+
+.animate-subtle-bounce {
+  animation: subtle-bounce 2.5s infinite ease-in-out;
+}

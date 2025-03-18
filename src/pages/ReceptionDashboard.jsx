@@ -22,7 +22,7 @@ const ReceptionDashboard = () => {
     appointmentTime: '',
     locality: '',
     address: '',
-    
+
   });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState("");
@@ -74,8 +74,41 @@ const ReceptionDashboard = () => {
     return appointments;
   };
 
-  const onlineAppointments = generateRandomAppointments(50);
-  const onVisitAppointments = generateRandomAppointments(50);
+  const [onlineAppointments, setOnlineAppointments] = useState([]);
+  const [onVisitAppointments, setOnVisitAppointments] = useState([]);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await fetch("YOUR_API_ENDPOINT"); // Replace with your backend endpoint
+        const data = await response.json();
+
+        // Add default payment status if not available in JSON
+        setOnlineAppointments(processedAppointments(data.onlineAppointments || []));
+        setOnVisitAppointments(processedAppointments(data.onVisitAppointments || []));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
+
+  // Process appointments to include default payment status
+  const processedAppointments = (appointments) =>
+    appointments.map((appt) => ({
+      ...appt,
+      payment_status: appt.payment_status || "Pending", // Default value if undefined
+    }));
+
+  // Handle Payment Method Change
+  const handlePaymentStatusChange = (id, newStatus, setAppointments) => {
+    setAppointments((prevAppointments) =>
+      prevAppointments.map((appt) =>
+        appt.id === id ? { ...appt, payment_status: newStatus } : appt
+      )
+    );
+  };
 
 
   return (
@@ -141,7 +174,7 @@ const ReceptionDashboard = () => {
           >
             Sign Out
           </Link>
-          
+
         </nav>
       </div>
 
@@ -157,7 +190,7 @@ const ReceptionDashboard = () => {
       <main style={{ marginTop: "0px" }}>
         <div className="flex flex-col md:flex-row md:justify-center md:gap-8 mt-20">
           {/* Online Appointments Section */}
-          <section id="online-appointments" className="bg-white shadow-lg rounded-lg p-4 w-[90vw] md:w-[48%] mx-auto">
+          <section className="bg-white shadow-lg rounded-lg p-4 w-[90vw] md:w-[48%] mx-auto">
             <div className="bg-blue-600 text-white text-center py-3 rounded-t-lg">
               <h2 className="text-lg font-bold">Online Appointments</h2>
             </div>
@@ -165,21 +198,37 @@ const ReceptionDashboard = () => {
               <table className="w-[600px] md:w-full border-collapse border border-gray-300">
                 <thead>
                   <tr className="bg-blue-500 text-white">
+                    <th className="border px-4 py-2">Patient ID</th>
                     <th className="border px-4 py-2">Name</th>
                     <th className="border px-4 py-2">Age</th>
                     <th className="border px-4 py-2">Test Type</th>
-                    <th className="border px-4 py-2">Time</th>
-                    <th className="border px-4 py-2">Payment</th>
+                    <th className="border px-4 py-2">Payment Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {onlineAppointments.map((appt) => (
                     <tr key={appt.id} className="text-center bg-gray-100 even:bg-gray-200">
+                      <td className="border px-4 py-2">{appt.patient_id}</td>
                       <td className="border px-4 py-2">{appt.name}</td>
                       <td className="border px-4 py-2">{appt.age}</td>
-                      <td className="border px-4 py-2">{appt.testType}</td>
-                      <td className="border px-4 py-2">{appt.time}</td>
-                      <td className="border px-4 py-2">{appt.paymentStatus}</td>
+                      <td className="border px-4 py-2">{appt.test_type}</td>
+                      <td className="border px-4 py-2">
+                        <select
+                          value={appt.payment_status}
+                          onChange={(e) =>
+                            handlePaymentStatusChange(
+                              appt.id,
+                              e.target.value,
+                              setOnlineAppointments
+                            )
+                          }
+                          className="border rounded p-1 bg-white"
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Online Payment">Online Payment</option>
+                          <option value="Cash Payment">Cash Payment</option>
+                        </select>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -188,7 +237,7 @@ const ReceptionDashboard = () => {
           </section>
 
           {/* On Visit Appointments Section */}
-          <section id="on-visit-appointments" className="bg-white shadow-lg rounded-lg p-4 w-[90vw] md:w-[48%] mx-auto">
+          <section className="bg-white shadow-lg rounded-lg p-4 w-[90vw] md:w-[48%] mx-auto">
             <div className="bg-blue-600 text-white text-center py-3 rounded-t-lg">
               <h2 className="text-lg font-bold">On Visit Appointments</h2>
             </div>
@@ -196,21 +245,37 @@ const ReceptionDashboard = () => {
               <table className="w-[600px] md:w-full border-collapse border border-gray-300">
                 <thead>
                   <tr className="bg-blue-500 text-white">
+                    <th className="border px-4 py-2">Patient ID</th>
                     <th className="border px-4 py-2">Name</th>
                     <th className="border px-4 py-2">Age</th>
                     <th className="border px-4 py-2">Test Type</th>
-                    <th className="border px-4 py-2">Time</th>
-                    <th className="border px-4 py-2">Payment</th>
+                    <th className="border px-4 py-2">Payment Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {onVisitAppointments.map((appt) => (
                     <tr key={appt.id} className="text-center bg-gray-100 even:bg-gray-200">
+                      <td className="border px-4 py-2">{appt.patient_id}</td>
                       <td className="border px-4 py-2">{appt.name}</td>
                       <td className="border px-4 py-2">{appt.age}</td>
-                      <td className="border px-4 py-2">{appt.testType}</td>
-                      <td className="border px-4 py-2">{appt.time}</td>
-                      <td className="border px-4 py-2">{appt.paymentStatus}</td>
+                      <td className="border px-4 py-2">{appt.test_type}</td>
+                      <td className="border px-4 py-2">
+                        <select
+                          value={appt.payment_status}
+                          onChange={(e) =>
+                            handlePaymentStatusChange(
+                              appt.id,
+                              e.target.value,
+                              setOnVisitAppointments
+                            )
+                          }
+                          className="border rounded p-1 bg-white"
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Online Payment">Online Payment</option>
+                          <option value="Cash Payment">Cash Payment</option>
+                        </select>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

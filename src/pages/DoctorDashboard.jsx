@@ -163,6 +163,7 @@ import React, { useEffect, useState } from "react";
 import "../css/doctor.css"; // Ensure your doctor.css is in src/css/
 import { Link } from "react-router-dom";
 
+
 const DoctorDashboard = () => {
   // State for mobile sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -188,8 +189,28 @@ const DoctorDashboard = () => {
     return appointments;
   };
 
-  const onlineAppointments = generateRandomAppointments(50);
-  const onVisitAppointments = generateRandomAppointments(50);
+  const [onlineAppointments, setOnlineAppointments] = useState([]);
+  const [onVisitAppointments, setOnVisitAppointments] = useState([]);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await fetch("YOUR_API_ENDPOINT"); // Replace with your backend endpoint
+        const data = await response.json();
+
+        // Assuming data structure:
+        // { onlineAppointments: [...], onVisitAppointments: [...] }
+
+        setOnlineAppointments(data.onlineAppointments || []);
+        setOnVisitAppointments(data.onVisitAppointments || []);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
+
 
   useEffect(() => {
     // Set up the upload form submission logic
@@ -236,7 +257,7 @@ const DoctorDashboard = () => {
             Doctor Dashboard
           </h1>
           <div className="flex items-center gap-6">
-            
+
             <div className="flex gap-4">
               <Link to="/">
                 <button className="bg-white text-blue-600 font-bold text-lg px-6 py-2 rounded hover:bg-blue-700 hover:text-white transition">
@@ -273,7 +294,7 @@ const DoctorDashboard = () => {
           >
             Sign Out
           </Link>
-          
+
         </nav>
       </div>
 
@@ -289,7 +310,7 @@ const DoctorDashboard = () => {
       <main style={{ marginTop: "80px" }}>
         <div className="flex flex-col md:flex-row md:justify-center md:gap-8">
           {/* Online Appointments Section */}
-          <section id="online-appointments" className="bg-white shadow-lg rounded-lg p-4 w-[90vw] md:w-[48%] mx-auto">
+          <section className="bg-white shadow-lg rounded-lg p-4 w-[90vw] md:w-[48%] mx-auto">
             <div className="bg-blue-600 text-white text-center py-3 rounded-t-lg">
               <h2 className="text-lg font-bold">Online Appointments</h2>
             </div>
@@ -297,21 +318,21 @@ const DoctorDashboard = () => {
               <table className="w-[600px] md:w-full border-collapse border border-gray-300">
                 <thead>
                   <tr className="bg-blue-500 text-white">
+                    <th className="border px-4 py-2">Patient ID</th>
                     <th className="border px-4 py-2">Name</th>
                     <th className="border px-4 py-2">Age</th>
                     <th className="border px-4 py-2">Test Type</th>
                     <th className="border px-4 py-2">Time</th>
-                    <th className="border px-4 py-2">Payment</th>
                   </tr>
                 </thead>
                 <tbody>
                   {onlineAppointments.map((appt) => (
                     <tr key={appt.id} className="text-center bg-gray-100 even:bg-gray-200">
+                      <td className="border px-4 py-2">{appt.id}</td>
                       <td className="border px-4 py-2">{appt.name}</td>
                       <td className="border px-4 py-2">{appt.age}</td>
                       <td className="border px-4 py-2">{appt.testType}</td>
                       <td className="border px-4 py-2">{appt.time}</td>
-                      <td className="border px-4 py-2">{appt.paymentStatus}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -320,7 +341,7 @@ const DoctorDashboard = () => {
           </section>
 
           {/* On Visit Appointments Section */}
-          <section id="on-visit-appointments" className="bg-white shadow-lg rounded-lg p-4 w-[90vw] md:w-[48%] mx-auto">
+          <section className="bg-white shadow-lg rounded-lg p-4 w-[90vw] md:w-[48%] mx-auto">
             <div className="bg-blue-600 text-white text-center py-3 rounded-t-lg">
               <h2 className="text-lg font-bold">On Visit Appointments</h2>
             </div>
@@ -328,21 +349,21 @@ const DoctorDashboard = () => {
               <table className="w-[600px] md:w-full border-collapse border border-gray-300">
                 <thead>
                   <tr className="bg-blue-500 text-white">
+                    <th className="border px-4 py-2">Patient ID</th>
                     <th className="border px-4 py-2">Name</th>
                     <th className="border px-4 py-2">Age</th>
                     <th className="border px-4 py-2">Test Type</th>
                     <th className="border px-4 py-2">Time</th>
-                    <th className="border px-4 py-2">Payment</th>
                   </tr>
                 </thead>
                 <tbody>
                   {onVisitAppointments.map((appt) => (
                     <tr key={appt.id} className="text-center bg-gray-100 even:bg-gray-200">
+                      <td className="border px-4 py-2">{appt.id}</td>
                       <td className="border px-4 py-2">{appt.name}</td>
                       <td className="border px-4 py-2">{appt.age}</td>
                       <td className="border px-4 py-2">{appt.testType}</td>
                       <td className="border px-4 py-2">{appt.time}</td>
-                      <td className="border px-4 py-2">{appt.paymentStatus}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -358,6 +379,15 @@ const DoctorDashboard = () => {
             <label htmlFor="patient-name">Patient Name:</label>
             <input type="text" id="patient-name" required />
 
+            <label htmlFor="phone-number">Phone Number:</label>
+            <input
+              type="tel"
+              id="phone-number"
+              pattern="[0-9]{10}"
+              placeholder="Enter 10-digit phone number"
+              required
+            />
+
             <label htmlFor="report-file">Upload PDF:</label>
             <div className="file-input-container">
               <input type="file" id="report-file" accept="application/pdf" required />
@@ -366,6 +396,7 @@ const DoctorDashboard = () => {
             <button type="submit">Upload</button>
           </form>
         </section>
+
 
       </main>
     </>
