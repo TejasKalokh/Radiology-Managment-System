@@ -14,7 +14,7 @@ const ChatbotIcon = () => {
                 src={botImage}
                 alt="Chatbot"
                 className="
-                    w-16 h-16 sm:w-32 sm:h-32 
+                    w-16 h-16 sm:w-32 sm:h-32   
                     drop-shadow-lg cursor-pointer 
                     hover:scale-110 
                     transition-transform duration-300

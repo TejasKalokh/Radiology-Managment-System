@@ -248,10 +248,10 @@
 // export default AppointmentForm;
 
 // src/components/AppointmentForm.js
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 const AppointmentForm = () => {
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     firstName: '',
     middleName: '',
     lastName: '',
@@ -259,6 +259,7 @@ const AppointmentForm = () => {
     testType: '',
     subTestType: '',
     mobile: '',
+    email: '',
     age: '',
     gender: '',
     appointmentDate: '',
@@ -266,7 +267,11 @@ const AppointmentForm = () => {
     locality: '',
     address: '',
     prescription: null,
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormData);
+  const fileInputRef = useRef(null);
+
 
   const subTests = {
     "Sonography": ["USG of Abdomen Pelvis", "USG Upper Abdomen", "USG Pelvis (Female)","USG Prostate","USG KUB (Male)","USG KUB (Female)","USG PVR (Post Void)","USG (Pre Void & Post Void)","USG small part/ Local part","USG Obs (Pregnancy)"],
@@ -296,9 +301,19 @@ const AppointmentForm = () => {
     });
   };
 
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   alert('Appointment booked successfully!');
+  // };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert('Appointment booked successfully!');
+    if (window.confirm('Appointment booked successfully!')) {
+      setFormData(initialFormData);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   return (
@@ -427,6 +442,18 @@ const AppointmentForm = () => {
               maxLength="10"
               required
               value={formData.mobile}
+              onChange={handleChange}
+              className="w-full p-3 border rounded"
+            />
+          </div>
+          <div className="flex-1">
+            <label htmlFor="email" className="font-bold">Email ID:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              value={formData.email}
               onChange={handleChange}
               className="w-full p-3 border rounded"
             />

@@ -1,7 +1,7 @@
 import React from "react";
 import Header from "../components/Header";
 import AppointmentForm from "../components/AppointmentForm";
-import Reports from "../components/Reports";
+import Reports from "../components/Reports.jsx";
 import Feedback from "../components/Feedback";
 
 const PatientDashboard = () => {

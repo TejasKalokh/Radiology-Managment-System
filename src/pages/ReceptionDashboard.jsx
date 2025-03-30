@@ -1,14 +1,14 @@
 // import React from "react";
 import { Menu, X, Bell } from "lucide-react";
 import logo from "../assets/logo.png";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "../css/ReceptionDashboard.css"; // Ensure you move your CSS to a React-compatible format
 import { Link } from "react-router-dom";
 
 
 
 const ReceptionDashboard = () => {
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     firstName: '',
     middleName: '',
     lastName: '',
@@ -16,14 +16,19 @@ const ReceptionDashboard = () => {
     testType: '',
     subTestType: '',
     mobile: '',
+    email: '',
     age: '',
     gender: '',
     appointmentDate: '',
     appointmentTime: '',
     locality: '',
     address: '',
+    prescription: null,
+  };
 
-  });
+  const [formData, setFormData] = useState(initialFormData);
+  const fileInputRef = useRef(null);
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedTest, setSelectedTest] = useState("");
 
@@ -50,7 +55,12 @@ const ReceptionDashboard = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert('Appointment booked successfully!');
+    if (window.confirm('Appointment booked successfully!')) {
+      setFormData(initialFormData);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   // Helper function to generate random appointments
@@ -411,6 +421,18 @@ const ReceptionDashboard = () => {
                   maxLength="10"
                   required
                   value={formData.mobile}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded"
+                />
+              </div>
+              <div className="flex-1">
+                <label htmlFor="email" className="font-bold">Email ID:</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  value={formData.email}
                   onChange={handleChange}
                   className="w-full p-3 border rounded"
                 />
