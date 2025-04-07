@@ -1,235 +1,203 @@
-// import React, { useEffect } from "react";
-// import "../css/doctor.css"; // Ensure doctor.css is in src/css/
+// import { Menu, X } from "lucide-react";
 // import logo from "../assets/logo.png";
+// import React, { useEffect, useState } from "react";
+// import "../css/doctor.css";
+// import { Link } from "react-router-dom";
 
 // const DoctorDashboard = () => {
-//   // Helper function to generate random appointments
-//   const generateRandomAppointments = (count) => {
-//     const testTypes = ["X-Ray", "MRI", "CT Scan", "Ultrasound", "Blood Test"];
-//     const appointments = [];
-//     for (let i = 0; i < count; i++) {
-//       appointments.push({
-//         id: i + 1,
-//         name: `Patient ${i + 1}`,
-//         age: Math.floor(Math.random() * 73) + 18, // Age between 18 and 90
-//         testType: testTypes[Math.floor(Math.random() * testTypes.length)],
-//         time: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(
-//           Math.random() * 60
-//         )
-//           .toString()
-//           .padStart(2, "0")} ${Math.random() > 0.5 ? "AM" : "PM"}`,
-//         paymentStatus: Math.random() > 0.5 ? "Paid" : "Pending",
-//       });
-//     }
-//     return appointments;
-//   };
+//   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+//   const [onlineAppointments, setOnlineAppointments] = useState([]);
+//   const [onVisitAppointments, setOnVisitAppointments] = useState([]);
 
-//   const onlineAppointments = generateRandomAppointments(50);
-//   const onVisitAppointments = generateRandomAppointments(50);
+  
 
 //   useEffect(() => {
-//     // Setup the upload form submission logic
+//     const fetchAppointments = async () => {
+//       try {
+//         const walkInResponse = await fetch("http://localhost:8080/api/doctor/walkin");
+//         const walkInData = await walkInResponse.json();
+//         const appointmentResponse = await fetch("http://localhost:8080/api/doctor/appoinment");
+//         const appointmentData = await appointmentResponse.json();
+
+//         setOnlineAppointments(
+//           appointmentData.map(appt => ({
+//             id: `${appt.patient_id}`,
+//             name: `${appt.patient_first_name} ${appt.patient_last_name}`,
+//             age: appt.age,
+//             testType: appt.test_type,
+//             time: appt.test_time,
+//           }))
+//         );
+        
+//         setOnVisitAppointments(
+//           walkInData.map(patient => ({
+//             id: `${patient.patient_id}`,
+//             name: `${patient.patient_first_name} ${patient.patient_last_name}`,
+//             age: patient.age,
+//             testType: patient.test_type,
+//             time: "Walk-in", 
+//           }))
+//         );
+//         console.log(setOnVisitAppointments)
+//         console.log(setOnlineAppointments)
+//       } catch (error) {
+//         console.error("Error fetching data:", error);
+//       }
+//     };
+
+//     fetchAppointments();
+//   }, []);
+
+
+//   useEffect(() => {
 //     const uploadForm = document.getElementById("upload-form");
 //     if (uploadForm) {
-//       uploadForm.addEventListener("submit", function (event) {
+//       uploadForm.addEventListener("submit", async function (event) {
 //         event.preventDefault();
-//         const patientName = document.getElementById("patient-name").value;
+        
+//         const patientName = document.getElementById("patient-name").value.trim();
+//         const phoneNumber = document.getElementById("phone-number").value.trim();
 //         const reportFile = document.getElementById("report-file").files[0];
-//         if (patientName && reportFile) {
-//           alert(`Report for ${patientName} uploaded successfully!`);
-//           uploadForm.reset();
-//         } else {
-//           alert("Please enter patient name and select a PDF file.");
+  
+//         if (!patientName || !phoneNumber || !reportFile) {
+//           alert("Please enter patient name, phone number, and select a PDF file.");
+//           return;
+//         }
+  
+//         const formData = new FormData();
+//         formData.append("file", reportFile);
+//         formData.append("patientphone", phoneNumber);
+//         formData.append("patientname", patientName);
+  
+//         console.log("Uploading Report with Data:");
+//         console.log("Name:", patientName);
+//         console.log("Phone:", phoneNumber);
+//         console.log("File:", reportFile.name);
+  
+//         try {
+//           const response = await fetch("http://localhost:8080/api/doctor/upload", { 
+//             method: "POST",
+//             body: formData,
+//           });
+  
+//           const result = await response.text();
+//           console.log("Backend Response:", result);
+  
+//           if (result === "Success") {
+//             alert(`Report for ${patientName} uploaded successfully!`);
+//             uploadForm.reset();
+//           } else {
+//             alert("Patient not found. Please check the details and try again.");
+//           }
+//         } catch (error) {
+//           console.error("Error uploading report:", error);
+//           alert("Failed to upload report. Please try again.");
 //         }
 //       });
 //     }
 //   }, []);
 
-//   return (
-//     <>
-//       <header>
-//         <div className="logo">
-//           <img
-//             src={logo}
-//             alt="Website Logo"
-//           />
-//         </div>
-//         <div className="header-left">
-//           <h1>Doctor Dashboard</h1>
-//         </div>
-//         <div className="header-right">
-//           <div className="notification">
-//             <i className="fa-regular fa-bell"></i>
-//             <span className="badge">3</span>
-//           </div>
-//           <div className="auth-buttons">
-//             <a href="signin.html">
-//               <button class="button" id="sign-in-btn">Sign In</button>
-//             </a>
-//             <a href="signup.html">
-//               <button class="button" id="sign-up-btn">Sign Up</button>
-//             </a>
-//           </div>
-//         </div>
-//       </header>
-
-//       <main>
-//         <div className="appointments-container">
-//           {/* Online Appointments Section */}
-//           <section id="online-appointments" className="appointments-section">
-//             <div className="appointments-header">
-//               <h2>Online Appointments</h2>
-//             </div>
-//             <div className="table-wrapper">
-//               <table>
-//                 <thead>
-//                   <tr>
-//                     <th>Name</th>
-//                     <th>Age</th>
-//                     <th>Test Type</th>
-//                     <th>Time</th>
-//                     <th>Payment</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody id="online-appointments-body">
-//                   {onlineAppointments.map((appt) => (
-//                     <tr key={appt.id}>
-//                       <td>{appt.name}</td>
-//                       <td>{appt.age}</td>
-//                       <td>{appt.testType}</td>
-//                       <td>{appt.time}</td>
-//                       <td>{appt.paymentStatus}</td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           </section>
-
-//           {/* On Visit Appointments Section */}
-//           <section id="on-visit-appointments" className="appointments-section">
-//             <div className="appointments-header">
-//               <h2>On Visit Appointments</h2>
-//             </div>
-//             <div className="table-wrapper">
-//               <table>
-//                 <thead>
-//                   <tr>
-//                     <th>Name</th>
-//                     <th>Age</th>
-//                     <th>Test Type</th>
-//                     <th>Time</th>
-//                     <th>Payment</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody id="on-visit-appointments-body">
-//                   {onVisitAppointments.map((appt) => (
-//                     <tr key={appt.id}>
-//                       <td>{appt.name}</td>
-//                       <td>{appt.age}</td>
-//                       <td>{appt.testType}</td>
-//                       <td>{appt.time}</td>
-//                       <td>{appt.paymentStatus}</td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           </section>
-//         </div>
-
-//         <section id="upload-report">
-//           <h2>Upload Patient Report</h2>
-//           <form id="upload-form">
-//             <label htmlFor="patient-name">Patient Name:</label>
-//             <input type="text" id="patient-name" required />
-
-//             <label htmlFor="report-file">Upload PDF:</label>
-//             <input type="file" id="report-file" accept="application/pdf" required />
-
-//             <button type="submit">Upload</button>
-
-//           </form>
-//         </section>
-//       </main>
-//     </>
-//   );
-// };
-
-// export default DoctorDashboard;
-import { Menu, X, Bell } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import logo from "../assets/logo.png";
 import React, { useEffect, useState } from "react";
-import "../css/doctor.css"; // Ensure your doctor.css is in src/css/
+import "../css/doctor.css";
 import { Link } from "react-router-dom";
 
-
 const DoctorDashboard = () => {
-  // State for mobile sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  // Helper function to generate random appointments
-  const generateRandomAppointments = (count) => {
-    const testTypes = ["X-Ray", "MRI", "CT Scan", "Ultrasound", "Blood Test"];
-    const appointments = [];
-    for (let i = 0; i < count; i++) {
-      appointments.push({
-        id: i + 1,
-        name: `Patient ${i + 1}`,
-        age: Math.floor(Math.random() * 73) + 18, // Age between 18 and 90
-        testType: testTypes[Math.floor(Math.random() * testTypes.length)],
-        time: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(
-          Math.random() * 60
-        )
-          .toString()
-          .padStart(2, "0")} ${Math.random() > 0.5 ? "AM" : "PM"}`,
-        paymentStatus: Math.random() > 0.5 ? "Paid" : "Pending",
-      });
-    }
-    return appointments;
-  };
-
   const [onlineAppointments, setOnlineAppointments] = useState([]);
   const [onVisitAppointments, setOnVisitAppointments] = useState([]);
 
+  const fetchAppointments = async () => {
+    try {
+      const walkInResponse = await fetch("http://localhost:8080/api/doctor/walkin");
+      const walkInData = await walkInResponse.json();
+      const appointmentResponse = await fetch("http://localhost:8080/api/doctor/appoinment");
+      const appointmentData = await appointmentResponse.json();
+
+      setOnlineAppointments(
+        appointmentData.map(appt => ({
+          id: `${appt.patient_id}`,
+          name: `${appt.patient_first_name} ${appt.patient_last_name}`,
+          age: appt.age,
+          testType: appt.test_type,
+          time: appt.test_time,
+        }))
+      );
+
+      setOnVisitAppointments(
+        walkInData.map(patient => ({
+          id: `${patient.patient_id}`,
+          name: `${patient.patient_first_name} ${patient.patient_last_name}`,
+          age: patient.age,
+          testType: patient.test_type,
+          time: "Walk-in",
+        }))
+      );
+      console.log(setOnVisitAppointments);
+      console.log(setOnlineAppointments);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const response = await fetch("YOUR_API_ENDPOINT"); // Replace with your backend endpoint
-        const data = await response.json();
+    fetchAppointments(); // Initial fetch
 
-        // Assuming data structure:
-        // { onlineAppointments: [...], onVisitAppointments: [...] }
+    const intervalId = setInterval(fetchAppointments, 15000); // Fetch every 15 seconds
 
-        setOnlineAppointments(data.onlineAppointments || []);
-        setOnVisitAppointments(data.onVisitAppointments || []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchAppointments();
+    return () => clearInterval(intervalId); // Clean up the interval on unmount
   }, []);
 
 
   useEffect(() => {
-    // Set up the upload form submission logic
     const uploadForm = document.getElementById("upload-form");
     if (uploadForm) {
-      uploadForm.addEventListener("submit", function (event) {
+      uploadForm.addEventListener("submit", async function (event) {
         event.preventDefault();
-        const patientName = document.getElementById("patient-name").value;
+
+        const patientName = document.getElementById("patient-name").value.trim();
+        const phoneNumber = document.getElementById("phone-number").value.trim();
         const reportFile = document.getElementById("report-file").files[0];
-        if (patientName && reportFile) {
-          alert(`Report for ${patientName} uploaded successfully!`);
-          uploadForm.reset();
-        } else {
-          alert("Please enter patient name and select a PDF file.");
+
+        if (!patientName || !phoneNumber || !reportFile) {
+          alert("Please enter patient name, phone number, and select a PDF file.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", reportFile);
+        formData.append("patientphone", phoneNumber);
+        formData.append("patientname", patientName);
+
+        console.log("Uploading Report with Data:");
+        console.log("Name:", patientName);
+        console.log("Phone:", phoneNumber);
+        console.log("File:", reportFile.name);
+
+        try {
+          const response = await fetch("http://localhost:8080/api/doctor/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.text();
+          console.log("Backend Response:", result);
+
+          if (result === "Success") {
+            alert(`Report for ${patientName} uploaded successfully!`);
+            uploadForm.reset();
+          } else {
+            alert("Patient not found. Please check the details and try again.");
+          }
+        } catch (error) {
+          console.error("Error uploading report:", error);
+          alert("Failed to upload report. Please try again.");
         }
       });
     }
   }, []);
-
+  
   return (
     <>
       {/* Header */}
@@ -373,7 +341,7 @@ const DoctorDashboard = () => {
         </div>
 
 
-        <section id="upload-report">
+        {/* <section id="upload-report">
           <h2>Upload Patient Report</h2>
           <form id="upload-form">
             <label htmlFor="patient-name">Patient Name:</label>
@@ -395,8 +363,34 @@ const DoctorDashboard = () => {
 
             <button type="submit">Upload</button>
           </form>
-        </section>
+        </section> */}
 
+<section id="upload-report" className="p-6 bg-white shadow-md rounded-lg max-w-md mx-auto mt-20">
+        <h2 className="text-xl font-bold mb-4">Upload Patient Report</h2>
+        <form id="upload-form" className="flex flex-col gap-4">
+          <label htmlFor="patient-name" className="font-medium">Patient Name:</label>
+          <input type="text" id="patient-name" className="border p-2 rounded text-black" required />
+
+          <label htmlFor="phone-number" className="font-medium">Phone Number:</label>
+          <input
+            type="tel"
+            id="phone-number"
+            pattern="[0-9]{10}"
+            placeholder="Enter 10-digit phone number"
+            className="border p-2 rounded text-black"
+            required
+          />
+
+          <label htmlFor="report-file" className="font-medium">Upload PDF:</label>
+          <div className="file-input-container">
+            <input type="file" id="report-file" accept="application/pdf" className="border p-2 rounded text-black" required />
+          </div>
+
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+            Upload
+          </button>
+        </form>
+      </section>
 
       </main>
     </>
@@ -404,3 +398,4 @@ const DoctorDashboard = () => {
 };
 
 export default DoctorDashboard;
+

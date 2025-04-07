@@ -9,40 +9,84 @@ import { Link } from "react-router-dom";
 
 const ReceptionDashboard = () => {
   const initialFormData = {
-    firstName: '',
-    middleName: '',
-    lastName: '',
-    doctorName: '',
-    testType: '',
-    subTestType: '',
-    mobile: '',
-    email: '',
-    age: '',
-    gender: '',
-    appointmentDate: '',
-    appointmentTime: '',
-    locality: '',
-    address: '',
-    prescription: null,
+    address : "", 
+    age : "", 
+    gender : "", 
+    locality : "", 
+    password : "", 
+    patient_first_name : "", 
+    patient_id : "",  
+    patient_last_name : "", 
+    patient_middle_name : "", 
+    phone_number : "", 
+    prescription_image_data : "", 
+    test_date : "", 
+    test_time : "", 
+    test_type : "", 
+    vist_type : "", 
+    get_image_name : "", 
+    username : ""
   };
 
   const [formData, setFormData] = useState(initialFormData);
   const fileInputRef = useRef(null);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [selectedTest, setSelectedTest] = useState("");
+  // const [selectedTest, setSelectedTest] = useState("");
 
-  const subTests = {
-    "Sonography": ["USG of Abdomen Pelvis", "USG Upper Abdomen", "USG Pelvis (Female)", "USG Prostate", "USG KUB (Male)", "USG KUB (Female)", "USG PVR (Post Void)", "USG (Pre Void & Post Void)", "USG small part/ Local part", "USG Obs (Pregnancy)"],
-    "Color-Doppler": ["Doppler Upper Limb (Hand)", "Doppler Lower Limb (Leg)", "Carotid Doppler", "Renal Doppler (Kidney)", "Scrotum Doppler", "Obs Pregnancy Doppler"],
-    "X-Ray": ["Chest X-Ray", "Limb X-Ray", "Dental X-Ray"],
-    "ECG": ["CBC", "Liver Function Test", "Thyroid Test"]
-  };
+  const [subTests, setSubTests] = useState({});
+  const [additionalOptions, setAdditionalOptions] = useState({});
 
-  const additionalOptions = {
-    "USG small part/ Local part": ["Thyroid", "Neck", "Scrotum", " Scrotum with Doppler", "Breast", "Axilla", "Skull", "Neonate Skull", "Parotid", "Local Swelling", "AV Fistula for Dialysis"],
-    "USG Obs (Pregnancy)": ["Early (1st Sonography)", "NT / NB scan", "Anomaly scan (11 to 14 weeks)", "Anomaly scan (16 to 20 weeks)", "Growth Scan", "7to9 months scan", "Twins (2months)", "Twins NT/ NB scan", "Twins Anomaly scan (11 to 14 weeks)", "Twins Anomaly scan (16 to 20 weeks)", "Twins Growth Scan", "Twins 7to9 months scan", "Twins Doppler", "Triplet Pregnancy(2 months)", "Triplet Pregnancy(3 months)", "Triplet Pregnancy(4 months)", "Triplet Pregnancy(5 months)", "Triplet Pregnancy(6 months)", "Triplet Pregnancy(7 months)", "Triplet Pregnancy(8 months)", "Triplet Pregnancy(9 months)"]
-  };
+
+  useEffect(() => {
+    const fetchTestData = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/reception/getalltests');
+        const data = await response.json();
+
+        // Initialize temporary objects
+        const tempSubTests = {};
+        const tempAdditionalOptions = {};
+
+        // Transform data
+        data.forEach(item => {
+          const { testname, sub_testname, sub_sub_testname } = item;
+
+          if (!sub_testname) {
+            if (!tempSubTests[testname]) {
+              tempSubTests[testname] = [];
+            }
+          } else {
+            if (!tempSubTests[testname]) {
+              tempSubTests[testname] = [];
+            }
+
+            if (!tempSubTests[testname].includes(sub_testname)) {
+              tempSubTests[testname].push(sub_testname);
+            }
+
+            if (sub_sub_testname) {
+              if (!tempAdditionalOptions[sub_testname]) {
+                tempAdditionalOptions[sub_testname] = [];
+              }
+
+              if (!tempAdditionalOptions[sub_testname].includes(sub_sub_testname)) {
+                tempAdditionalOptions[sub_testname].push(sub_sub_testname);
+              }
+            }
+          }
+        });
+
+        setSubTests(tempSubTests);
+        setAdditionalOptions(tempAdditionalOptions);
+
+      } catch (err) {
+        console.error('Failed to fetch data', err);
+      }
+    };
+
+    fetchTestData();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,63 +97,85 @@ const ReceptionDashboard = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (window.confirm('Appointment booked successfully!')) {
+  //     setFormData(initialFormData);
+  //     if (fileInputRef.current) {
+  //       fileInputRef.current.value = "";
+  //     }
+  //   }
+  // };
+
+  const handleFileChange = (e) => {
+    setFormData({
+      ...formData,
+      prescription: e.target.files[0]
+    });
+  };
+  
+  const handleSubmitt = async (e) => {
     e.preventDefault();
-    if (window.confirm('Appointment booked successfully!')) {
-      setFormData(initialFormData);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
-
-  // Helper function to generate random appointments
-  const generateRandomAppointments = (count) => {
-    const testTypes = ["X-Ray", "MRI", "CT Scan", "Ultrasound", "Blood Test"];
-    const appointments = [];
-    for (let i = 0; i < count; i++) {
-      appointments.push({
-        id: i + 1,
-        name: `Patient ${i + 1}`,
-        age: Math.floor(Math.random() * 73) + 18, // Age between 18 and 90
-        testType: testTypes[Math.floor(Math.random() * testTypes.length)],
-        time: `${Math.floor(Math.random() * 12) + 1}:${Math.floor(
-          Math.random() * 60
-        )
-          .toString()
-          .padStart(2, "0")} ${Math.random() > 0.5 ? "AM" : "PM"}`,
-        paymentStatus: Math.random() > 0.5 ? "Paid" : "Pending",
-      });
-    }
-    return appointments;
-  };
-
-  const [onlineAppointments, setOnlineAppointments] = useState([]);
-  const [onVisitAppointments, setOnVisitAppointments] = useState([]);
-
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const response = await fetch("YOUR_API_ENDPOINT"); // Replace with your backend endpoint
-        const data = await response.json();
-
-        // Add default payment status if not available in JSON
-        setOnlineAppointments(processedAppointments(data.onlineAppointments || []));
-        setOnVisitAppointments(processedAppointments(data.onVisitAppointments || []));
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+  
+    // Prepare payload in backend format
+    const payload = {
+      address: formData.address,
+      age: Number(formData.age),
+      gender: formData.gender,
+      locality: formData.locality,
+      password: null, // If not used
+      patient_first_name: formData.firstName,
+      patient_middle_name: formData.middleName,
+      patient_last_name: formData.lastName,
+      phone_number: Number(formData.mobile),
+      prescription_image_data: null, // will update below if there's a file
+      test_type: formData.testType,
+      get_image_name: null,
+      test_date: formData.appointmentDate, // assume format already DD-MM-YYYY
+      test_time: formData.appointmentTime
     };
-
-    fetchAppointments();
-  }, []);
-
-  // Process appointments to include default payment status
-  const processedAppointments = (appointments) =>
-    appointments.map((appt) => ({
-      ...appt,
-      payment_status: appt.payment_status || "Pending", // Default value if undefined
-    }));
+  
+    // Handle prescription file upload if present
+    if (formData.prescription) {
+      const file = formData.prescription;
+  
+      // Convert image file to base64 string
+      const base64 = await toBase64(file);
+      payload.prescription_image_data = base64;
+    }
+  
+    try {
+      const response = await fetch('http://localhost:8080/api/reception/addpatient', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+  
+      if (!response.ok) throw new Error("Something went wrong");
+  
+      const result = await response.json();
+      console.log("Success:", result);
+  
+      if (window.confirm("Appointment booked successfully!")) {
+        setFormData(initialFormData);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    } catch (error) {
+      console.error("Submission failed:", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
+  
+  const toBase64 = file =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  
 
   // Handle Payment Method Change
   const handlePaymentStatusChange = (id, newStatus, setAppointments) => {
@@ -119,6 +185,49 @@ const ReceptionDashboard = () => {
       )
     );
   };
+  const [onlineAppointments, setOnlineAppointments] = useState([]);
+    const [onVisitAppointments, setOnVisitAppointments] = useState([]);
+  
+    const fetchAppointments = async () => {
+      try {
+        const walkInResponse = await fetch("http://localhost:8080/api/reception/walkinpatient");
+        const walkInData = await walkInResponse.json();
+        const appointmentResponse = await fetch("http://localhost:8080/api/reception/appoinmentpatient");
+        const appointmentData = await appointmentResponse.json();
+  
+        setOnlineAppointments(
+          appointmentData.map(appt => ({
+            id: `${appt.patient_id}`,
+            name: `${appt.patient_first_name} ${appt.patient_last_name}`,
+            age: appt.age,
+            testType: appt.test_type,
+            time: appt.test_time,
+          }))
+        );
+  
+        setOnVisitAppointments(
+          walkInData.map(patient => ({
+            id: `${patient.patient_id}`,
+            name: `${patient.patient_first_name} ${patient.patient_last_name}`,
+            age: patient.age,
+            testType: patient.test_type,
+            time: "Walk-in",
+          }))
+        );
+        console.log(setOnVisitAppointments);
+        console.log(setOnlineAppointments);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    useEffect(() => {
+      fetchAppointments(); // Initial fetch
+  
+      const intervalId = setInterval(fetchAppointments, 15000); // Fetch every 15 seconds
+  
+      return () => clearInterval(intervalId); // Clean up the interval on unmount
+    }, []);
 
 
   return (
@@ -300,7 +409,7 @@ const ReceptionDashboard = () => {
           <h3 className="bg-blue-600 text-white text-center p-4 rounded-t-md text-xl font-semibold">
             Book an On Visit Appointment
           </h3>
-          <form onSubmit={handleSubmit} id="onVisitForm" className="mt-6">
+          <form onSubmit={handleSubmitt} id="onVisitForm" className="mt-6">
             {/* Full Name */}
             <div className="form-group mb-4">
               <label htmlFor="full-name" className="font-bold">Full Name:</label>
