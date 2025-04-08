@@ -5,6 +5,7 @@ import LandingPage from "./pages/LandingPage.jsx";
 import PatientDashboard from "./pages/PatientDashboard.jsx";
 import DoctorDashboard from "./pages/DoctorDashboard.jsx";
 import ReceptionDashboard from "./pages/ReceptionDashboard";  // Import the Reception Dashboard
+import AdminDashboard from "./pages/AdminDashboard.jsx";  // Import the Admin Dashboard
 import SignUp from "./pages/signUp.jsx"; // Import your Sign In page
 import SignIn from "./pages/signIn.jsx"; // Import your Sign In page
 import DiagnosticUi from "./components/DiagnosticUi.jsx";
@@ -88,6 +89,7 @@ function App() {
         <Route path="/patient-dashboard" element={<PatientDashboard />} />
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
         <Route path="/reception-dashboard" element={<ReceptionDashboard />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/signIn" element={<SignIn />} />
         <Route path="/signUp" element={<SignUp />} />
       </Routes>

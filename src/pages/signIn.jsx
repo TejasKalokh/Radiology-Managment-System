@@ -1,40 +1,48 @@
-// import React from "react";
-// import { Link } from "react-router-dom";
-
-// const SignIn = () => {
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-//       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-//         <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Sign In</h2>
-        
-//         <form>
-//           <div className="mb-4">
-//             <label className="block text-gray-700">Email</label>
-//             <input type="email" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your email" />
-//           </div>
-
-//           <div className="mb-4">
-//             <label className="block text-gray-700">Password</label>
-//             <input type="password" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your password" />
-//           </div>
-
-//           <button className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">Sign In</button>
-//         </form>
-
-//         <p className="mt-4 text-center text-gray-600">
-//           Don't have an account? <Link to="/signup" className="text-blue-500 font-bold">Sign Up</Link>
-//         </p>
-//       </div>
-//     </div>
-//   );
-// };
-
-import React from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SignIn from "../assets/signin_vector.jpg";
+import { useNavigate } from "react-router-dom";
 
 const Signin = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    userType: "patient"
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    // In a real app, this would authenticate with a backend
+    // For now, we'll just redirect based on user type
+    
+    switch (formData.userType) {
+      case "admin":
+        navigate("/admin-dashboard");
+        break;
+      case "doctor":
+        navigate("/doctor-dashboard");
+        break;
+      case "reception":
+        navigate("/reception-dashboard");
+        break;
+      case "patient":
+      default:
+        navigate("/patient-dashboard");
+        break;
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-white relative px-4 sm:px-0">
       {/* Back Arrow */}
@@ -59,13 +67,17 @@ const Signin = () => {
         <div className="w-full sm:w-1/2 p-8">
           <h2 className="text-2xl font-semibold text-center text-gray-700">SIGN IN</h2>
 
-          <form className="mt-4">
+          <form className="mt-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-gray-600 text-sm">Email</label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter your email"
+                required
               />
             </div>
 
@@ -73,9 +85,28 @@ const Signin = () => {
               <label className="block text-gray-600 text-sm">Password</label>
               <input
                 type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter your password"
+                required
               />
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-gray-600 text-sm">I am a</label>
+              <select
+                name="userType"
+                value={formData.userType}
+                onChange={handleChange}
+                className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="patient">Patient</option>
+                <option value="doctor">Doctor</option>
+                <option value="reception">Receptionist</option>
+                <option value="admin">Administrator</option>
+              </select>
             </div>
 
             <button

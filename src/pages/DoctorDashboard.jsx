@@ -377,7 +377,7 @@ const DoctorDashboard = () => {
           <h2>Upload Patient Report</h2>
           <form id="upload-form">
             <label htmlFor="patient-name">Patient Name:</label>
-            <input type="text" id="patient-name" required />
+            <input type="text" id="patient-name" className="w-full p-2 border border-gray-300 rounded text-black" required />
 
             <label htmlFor="phone-number">Phone Number:</label>
             <input
@@ -385,12 +385,13 @@ const DoctorDashboard = () => {
               id="phone-number"
               pattern="[0-9]{10}"
               placeholder="Enter 10-digit phone number"
+              className="w-full p-2 border border-gray-300 rounded text-black"
               required
             />
 
             <label htmlFor="report-file">Upload PDF:</label>
             <div className="file-input-container">
-              <input type="file" id="report-file" accept="application/pdf" required />
+              <input type="file" id="report-file" className="w-full p-2 border border-gray-300 rounded text-black" accept="application/pdf" required />
             </div>
 
             <button type="submit">Upload</button>
