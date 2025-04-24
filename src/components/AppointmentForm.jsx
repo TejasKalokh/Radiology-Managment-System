@@ -29,19 +29,40 @@ const AppointmentForm = () => {
   
   
     useEffect(() => {
-      const fetchTestData = async () => {
+      const fetchTests = async () => {
         try {
-          const response = await fetch('http://localhost:8080/api/reception/bookappoinment');
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/patient/getalltests`, {
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!response.ok) {
+            if (response.status === 403) {
+              // Redirect to login if unauthorized
+              window.location.href = '/signin';
+              return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
           const data = await response.json();
-  
+          
+          // Check if data is an array
+          if (!Array.isArray(data)) {
+            console.error('Expected array but got:', typeof data);
+            return;
+          }
+
           // Initialize temporary objects
           const tempSubTests = {};
           const tempAdditionalOptions = {};
-  
+
           // Transform data
           data.forEach(item => {
             const { testname, sub_testname, sub_sub_testname } = item;
-  
+
             if (!sub_testname) {
               if (!tempSubTests[testname]) {
                 tempSubTests[testname] = [];
@@ -50,32 +71,32 @@ const AppointmentForm = () => {
               if (!tempSubTests[testname]) {
                 tempSubTests[testname] = [];
               }
-  
+
               if (!tempSubTests[testname].includes(sub_testname)) {
                 tempSubTests[testname].push(sub_testname);
               }
-  
+
               if (sub_sub_testname) {
                 if (!tempAdditionalOptions[sub_testname]) {
                   tempAdditionalOptions[sub_testname] = [];
                 }
-  
+
                 if (!tempAdditionalOptions[sub_testname].includes(sub_sub_testname)) {
                   tempAdditionalOptions[sub_testname].push(sub_sub_testname);
                 }
               }
             }
           });
-  
+
           setSubTests(tempSubTests);
           setAdditionalOptions(tempAdditionalOptions);
-  
+
         } catch (err) {
           console.error('Failed to fetch data', err);
         }
       };
-  
-      fetchTestData();
+
+      fetchTests();
     }, []);
   
     const handleChange = (e) => {
@@ -118,15 +139,19 @@ const AppointmentForm = () => {
       }
     
       try {
-        const response = await fetch('http://localhost:8080/api/reception/addpatient', {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reception/addpatient`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
+          credentials: 'include',
           body: JSON.stringify(payload)
         });
     
-        if (!response.ok) throw new Error("Something went wrong");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Something went wrong");
+        }
     
         const result = await response.json();
         console.log("Success:", result);

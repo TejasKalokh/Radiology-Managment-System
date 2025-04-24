@@ -1,119 +1,48 @@
-// import { Menu, X } from "lucide-react";
-// import logo from "../assets/logo.png";
-// import React, { useEffect, useState } from "react";
-// import "../css/doctor.css";
-// import { Link } from "react-router-dom";
-
-// const DoctorDashboard = () => {
-//   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-//   const [onlineAppointments, setOnlineAppointments] = useState([]);
-//   const [onVisitAppointments, setOnVisitAppointments] = useState([]);
-
-  
-
-//   useEffect(() => {
-//     const fetchAppointments = async () => {
-//       try {
-//         const walkInResponse = await fetch("http://localhost:8080/api/doctor/walkin");
-//         const walkInData = await walkInResponse.json();
-//         const appointmentResponse = await fetch("http://localhost:8080/api/doctor/appoinment");
-//         const appointmentData = await appointmentResponse.json();
-
-//         setOnlineAppointments(
-//           appointmentData.map(appt => ({
-//             id: `${appt.patient_id}`,
-//             name: `${appt.patient_first_name} ${appt.patient_last_name}`,
-//             age: appt.age,
-//             testType: appt.test_type,
-//             time: appt.test_time,
-//           }))
-//         );
-        
-//         setOnVisitAppointments(
-//           walkInData.map(patient => ({
-//             id: `${patient.patient_id}`,
-//             name: `${patient.patient_first_name} ${patient.patient_last_name}`,
-//             age: patient.age,
-//             testType: patient.test_type,
-//             time: "Walk-in", 
-//           }))
-//         );
-//         console.log(setOnVisitAppointments)
-//         console.log(setOnlineAppointments)
-//       } catch (error) {
-//         console.error("Error fetching data:", error);
-//       }
-//     };
-
-//     fetchAppointments();
-//   }, []);
-
-
-//   useEffect(() => {
-//     const uploadForm = document.getElementById("upload-form");
-//     if (uploadForm) {
-//       uploadForm.addEventListener("submit", async function (event) {
-//         event.preventDefault();
-        
-//         const patientName = document.getElementById("patient-name").value.trim();
-//         const phoneNumber = document.getElementById("phone-number").value.trim();
-//         const reportFile = document.getElementById("report-file").files[0];
-  
-//         if (!patientName || !phoneNumber || !reportFile) {
-//           alert("Please enter patient name, phone number, and select a PDF file.");
-//           return;
-//         }
-  
-//         const formData = new FormData();
-//         formData.append("file", reportFile);
-//         formData.append("patientphone", phoneNumber);
-//         formData.append("patientname", patientName);
-  
-//         console.log("Uploading Report with Data:");
-//         console.log("Name:", patientName);
-//         console.log("Phone:", phoneNumber);
-//         console.log("File:", reportFile.name);
-  
-//         try {
-//           const response = await fetch("http://localhost:8080/api/doctor/upload", { 
-//             method: "POST",
-//             body: formData,
-//           });
-  
-//           const result = await response.text();
-//           console.log("Backend Response:", result);
-  
-//           if (result === "Success") {
-//             alert(`Report for ${patientName} uploaded successfully!`);
-//             uploadForm.reset();
-//           } else {
-//             alert("Patient not found. Please check the details and try again.");
-//           }
-//         } catch (error) {
-//           console.error("Error uploading report:", error);
-//           alert("Failed to upload report. Please try again.");
-//         }
-//       });
-//     }
-//   }, []);
-
 import { Menu, X } from "lucide-react";
 import logo from "../assets/logo.png";
 import React, { useEffect, useState } from "react";
 import "../css/doctor.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const DoctorDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [onlineAppointments, setOnlineAppointments] = useState([]);
   const [onVisitAppointments, setOnVisitAppointments] = useState([]);
+  const [walkInAppointments, setWalkInAppointments] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const navigate = useNavigate();
 
   const fetchAppointments = async () => {
     try {
-      const walkInResponse = await fetch("http://localhost:8080/api/doctor/walkin");
+      const walkInResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/walk-in/all`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (walkInResponse.status === 403) {
+        navigate('/signin');
+        return;
+      }
+      
       const walkInData = await walkInResponse.json();
-      const appointmentResponse = await fetch("http://localhost:8080/api/doctor/appoinment");
+      setWalkInAppointments(walkInData);
+
+      const appointmentResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/appointments/all`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (appointmentResponse.status === 403) {
+        navigate('/signin');
+        return;
+      }
+      
       const appointmentData = await appointmentResponse.json();
+      setAppointments(appointmentData);
 
       setOnlineAppointments(
         appointmentData.map(appt => ({
@@ -134,10 +63,11 @@ const DoctorDashboard = () => {
           time: "Walk-in",
         }))
       );
-      console.log(setOnVisitAppointments);
-      console.log(setOnlineAppointments);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error('Error fetching appointments:', error);
+      if (error.response?.status === 403) {
+        navigate('/signin');
+      }
     }
   };
 
@@ -147,7 +77,7 @@ const DoctorDashboard = () => {
     const intervalId = setInterval(fetchAppointments, 15000); // Fetch every 15 seconds
 
     return () => clearInterval(intervalId); // Clean up the interval on unmount
-  }, []);
+  }, [navigate]);
 
 
   useEffect(() => {
@@ -155,48 +85,34 @@ const DoctorDashboard = () => {
     if (uploadForm) {
       uploadForm.addEventListener("submit", async function (event) {
         event.preventDefault();
-
-        const patientName = document.getElementById("patient-name").value.trim();
-        const phoneNumber = document.getElementById("phone-number").value.trim();
-        const reportFile = document.getElementById("report-file").files[0];
-
-        if (!patientName || !phoneNumber || !reportFile) {
-          alert("Please enter patient name, phone number, and select a PDF file.");
-          return;
-        }
-
-        const formData = new FormData();
-        formData.append("file", reportFile);
-        formData.append("patientphone", phoneNumber);
-        formData.append("patientname", patientName);
-
-        console.log("Uploading Report with Data:");
-        console.log("Name:", patientName);
-        console.log("Phone:", phoneNumber);
-        console.log("File:", reportFile.name);
-
+        const formData = new FormData(uploadForm);
+        
         try {
-          const response = await fetch("http://localhost:8080/api/doctor/upload", {
-            method: "POST",
-            body: formData,
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reports/upload`, {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
           });
-
-          const result = await response.text();
-          console.log("Backend Response:", result);
-
-          if (result === "Success") {
-            alert(`Report for ${patientName} uploaded successfully!`);
-            uploadForm.reset();
-          } else {
-            alert("Patient not found. Please check the details and try again.");
+          
+          if (response.status === 403) {
+            navigate('/signin');
+            return;
           }
+          
+          if (!response.ok) {
+            throw new Error('Failed to upload report');
+          }
+          
+          const result = await response.json();
+          alert('Report uploaded successfully!');
+          uploadForm.reset();
         } catch (error) {
-          console.error("Error uploading report:", error);
-          alert("Failed to upload report. Please try again.");
+          console.error('Error uploading report:', error);
+          alert('Failed to upload report. Please try again.');
         }
       });
     }
-  }, []);
+  }, [navigate]);
   
   return (
     <>
@@ -345,7 +261,7 @@ const DoctorDashboard = () => {
           <h2>Upload Patient Report</h2>
           <form id="upload-form">
             <label htmlFor="patient-name">Patient Name:</label>
-            <input type="text" id="patient-name" required />
+            <input type="text" id="patient-name" className="w-full p-2 border border-gray-300 rounded text-black" required />
 
             <label htmlFor="phone-number">Phone Number:</label>
             <input
@@ -353,12 +269,13 @@ const DoctorDashboard = () => {
               id="phone-number"
               pattern="[0-9]{10}"
               placeholder="Enter 10-digit phone number"
+              className="w-full p-2 border border-gray-300 rounded text-black"
               required
             />
 
             <label htmlFor="report-file">Upload PDF:</label>
             <div className="file-input-container">
-              <input type="file" id="report-file" accept="application/pdf" required />
+              <input type="file" id="report-file" className="w-full p-2 border border-gray-300 rounded text-black" accept="application/pdf" required />
             </div>
 
             <button type="submit">Upload</button>

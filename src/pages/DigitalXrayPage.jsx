@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
-import xrayImage from "../assets/xrayImage.jpg"; // Add your image path
+import xrayImage from "../assets/xrayImage.jpg"; 
 import Navbar from "../components/Navbar";
 import Footers from "../components/Footers";
 

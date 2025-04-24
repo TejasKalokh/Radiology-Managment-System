@@ -15,7 +15,7 @@ const FeedbackSection = () => {
 
     return (
         <section id="feedback" className="feedback-section">
-            <h2 class="text-2xl font-bold">Feedback & Review</h2>
+            <h2 className="text-2xl font-bold">Feedback & Review</h2>
             <p>Share your experience with us:</p>
             <textarea
                 id="feedback-text"

@@ -1,48 +1,63 @@
-// import React from "react";
-// import { Link } from "react-router-dom";
-
-// const SignUp = () => {
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-//       <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-//         <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Sign Up</h2>
-        
-//         <form>
-//           <div className="mb-4">
-//             <label className="block text-gray-700">Full Name</label>
-//             <input type="text" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your name" />
-//           </div>
-
-//           <div className="mb-4">
-//             <label className="block text-gray-700">Email</label>
-//             <input type="email" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter your email" />
-//           </div>
-
-//           <div className="mb-4">
-//             <label className="block text-gray-700">Password</label>
-//             <input type="password" className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Create a password" />
-//           </div>
-
-//           <button className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition">Sign Up</button>
-//         </form>
-
-//         <p className="mt-4 text-center text-gray-600">
-//           Already have an account? <Link to="/signin" className="text-blue-500 font-bold">Sign In</Link>
-//         </p>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default SignUp;
-
-
-import React from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleLeft } from "@fortawesome/free-solid-svg-icons"; 
+import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SignUn from "../assets/signup_vector.jpg";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    phoneNumber: "",
+    email: "",
+    password: ""
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      // Create username in the format PhnNo@name
+      const username = `${formData.phoneNumber}@${formData.firstName}`;
+      
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/signup`, {
+        username: username,
+        password: formData.password,
+        firstName: formData.firstName,
+        middleName: formData.middleName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        email: formData.email,
+        role: "PATIENT" // Default role for signup
+      });
+
+      if (response.data.status === "success") {
+        // Immediately redirect to signin page
+        navigate("/signIn");
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to sign up. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-white p-4 relative">
 
@@ -69,13 +84,61 @@ const Signup = () => {
         <div className="w-full md:w-1/2 p-6 md:p-8">
           <h2 className="text-2xl font-semibold text-center text-gray-700">SIGN UP</h2>
 
-          <form className="mt-4">
+          {error && (
+            <div className="mt-4 p-2 bg-red-100 text-red-600 rounded-lg text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mt-4 p-2 bg-green-100 text-green-600 rounded-lg text-sm text-center">
+              Sign up successful! Redirecting to sign in...
+            </div>
+          )}
+
+          <form className="mt-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-gray-600 text-sm">Full Name</label>
+              <label className="block text-gray-600 text-sm">Name</label>
+              <div className="flex gap-2 mt-2">
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="w-1/3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="First"
+                  required
+                />
+                <input
+                  type="text"
+                  name="middleName"
+                  value={formData.middleName}
+                  onChange={handleChange}
+                  className="w-1/3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Middle"
+                />
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="w-1/3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="Last"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-gray-600 text-sm">Phone Number</label>
               <input
-                type="text"
+                type="tel"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
                 className="w-full px-3 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Enter your full name"
+                placeholder="Enter your phone number"
+                required
               />
             </div>
 
@@ -83,8 +146,12 @@ const Signup = () => {
               <label className="block text-gray-600 text-sm">Email</label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-3 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter your email"
+                required
               />
             </div>
 
@@ -92,16 +159,21 @@ const Signup = () => {
               <label className="block text-gray-600 text-sm">Password</label>
               <input
                 type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-3 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter your password"
+                required
               />
             </div>
 
             <button
               type="submit"
-              className="w-full mt-5 py-3 text-white bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold"
+              disabled={loading || success}
+              className="w-full mt-5 py-3 text-white bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold disabled:bg-blue-300"
             >
-              Sign Up
+              {loading ? "Signing up..." : success ? "Sign up successful!" : "Sign Up"}
             </button>
           </form>
 

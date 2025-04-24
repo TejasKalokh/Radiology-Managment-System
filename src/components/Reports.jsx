@@ -1,125 +1,124 @@
-// import React, { useState } from 'react';
+// import React from "react";
 
-// const ReportsSection = () => {
-//   const [email, setEmail] = useState('');
+// const Reports = () => {
+//   const reports = [
+//     { id: 1, name: "CT Scan Report", file: "ct_scan.pdf" },
+//     { id: 2, name: "MRI Report", file: "mri_report.pdf" },
+//     { id: 3, name: "X-Ray Report", file: "xray_report.pdf" },
+//     { id: 4, name: "Blood Test Report", file: "blood_test.pdf" },
+//     { id: 5, name: "Ultrasound Report", file: "ultrasound.pdf" },
+//     { id: 6, name: "ECG Report", file: "ecg_report.pdf" },
+//     { id: 7, name: "Liver Function Test", file: "lft_report.pdf" },
+//     { id: 8, name: "Kidney Function Test", file: "kft_report.pdf" },
+//     { id: 9, name: "Thyroid Test Report", file: "thyroid_report.pdf" },
+//     { id: 10, name: "Cholesterol Test", file: "cholesterol.pdf" },
+//   ];
 
-//   const downloadReport = (fileName) => {
-//     const link = document.createElement("a");
-//     link.href = `reports/${fileName}`; // Ensure the file exists in the "reports" folder
-//     link.download = fileName;
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
+//   const handleSendEmail = (reportName) => {
+//     alert(`📩 Sending ${reportName} to your email...`);
 //   };
 
-//   const sendReports = () => {
-//     if (!email) {
-//       alert("Please enter a valid email.");
-//       return;
-//     }
-//     alert(`Reports will be sent to ${email}`);
-//   };
-
-//   return (
-//     <section id="reports" className="reports-section">
-//       <h2>Download PDF Reports</h2>
-
-//       <div className="table-container"> {/* Added wrapper div for scroll */}
-//         <table className="report-table">
-//           <thead>
-//             <tr>
-//               <th>Sr No</th>
-//               <th>Report Name</th>
-//               <th>Download</th>
-//             </tr>
-//           </thead>
-//           <tbody id="report-list">
-//             <tr>
-//               <td>1</td>
-//               <td>CT Scan Report</td>
-//               <td><button className="download-btn" onClick={() => downloadReport('ct_scan.pdf')}>Download</button></td>
-//             </tr>
-//             <tr>
-//               <td>2</td>
-//               <td>MRI Report</td>
-//               <td><button className="download-btn" onClick={() => downloadReport('mri_report.pdf')}>Download</button></td>
-//             </tr>
-//             <tr>
-//               <td>3</td>
-//               <td>X-Ray Report</td>
-//               <td><button className="download-btn" onClick={() => downloadReport('xray_report.pdf')}>Download</button></td>
-//             </tr>
-//             <tr>
-//               <td>1</td>
-//               <td>CT Scan Report</td>
-//               <td><button className="download-btn" onClick={() => downloadReport('ct_scan.pdf')}>Download</button></td>
-//             </tr>
-//             <tr>
-//               <td>2</td>
-//               <td>MRI Report</td>
-//               <td><button className="download-btn" onClick={() => downloadReport('mri_report.pdf')}>Download</button></td>
-//             </tr>
-//             <tr>
-//               <td>3</td>
-//               <td>X-Ray Report</td>
-//               <td><button className="download-btn" onClick={() => downloadReport('xray_report.pdf')}>Download</button></td>
-//             </tr>
-//             <tr>
-//               <td>1</td>
-//               <td>CT Scan Report</td>
-//               <td><button className="download-btn" onClick={() => downloadReport('ct_scan.pdf')}>Download</button></td>
-//             </tr>
-//             <tr>
-//               <td>2</td>
-//               <td>MRI Report</td>
-//               <td><button className="download-btn" onClick={() => downloadReport('mri_report.pdf')}>Download</button></td>
-//             </tr>
-//             <tr>
-//               <td>3</td>
-//               <td>X-Ray Report</td>
-//               <td><button className="download-btn" onClick={() => downloadReport('xray_report.pdf')}>Download</button></td>
-//             </tr>
-//           </tbody>
-//         </table>
-//       </div>
-
-//       <div className="email-section">
-//         <p>Enter your email to receive reports:</p>
-//         <input
-//           type="email"
-//           id="report-email"
-//           placeholder="Enter your email"
-//           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
-//           required
-//         />
-//         <button className="send-btn" onClick={sendReports}>Send to Email</button>
-//       </div>
-//     </section>
-//   );
-// };
-
-// export default ReportsSection;
-
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Reports = () => {
-  const reports = [
-    { id: 1, name: "CT Scan Report", file: "ct_scan.pdf" },
-    { id: 2, name: "MRI Report", file: "mri_report.pdf" },
-    { id: 3, name: "X-Ray Report", file: "xray_report.pdf" },
-    { id: 4, name: "Blood Test Report", file: "blood_test.pdf" },
-    { id: 5, name: "Ultrasound Report", file: "ultrasound.pdf" },
-    { id: 6, name: "ECG Report", file: "ecg_report.pdf" },
-    { id: 7, name: "Liver Function Test", file: "lft_report.pdf" },
-    { id: 8, name: "Kidney Function Test", file: "kft_report.pdf" },
-    { id: 9, name: "Thyroid Test Report", file: "thyroid_report.pdf" },
-    { id: 10, name: "Cholesterol Test", file: "cholesterol.pdf" },
-  ];
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const username = sessionStorage.getItem('username');
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        if (!username) {
+          navigate('/signin');
+          return;
+        }
+
+        const response = await axios.get('http://localhost:8080/api/patient/report', {
+          data: username,
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const backendData = response.data;
+        const formattedReports = backendData.map((item, index) => ({
+          id: index + 1,
+          name: `${item.test_type} Report for ${item.patient_First_Name}`,
+          pdfData: item.reports_pdf,
+          testDate: item.test_Date,
+          testType: item.test_type
+        }));
+
+        setReports(formattedReports);
+      } catch (err) {
+        if (err.response?.status === 403 || err.response?.status === 401) {
+          navigate('/signin');
+        } else {
+          setError('Failed to load reports');
+          console.error('Error fetching reports:', err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, [username, navigate]);
+
+  const handleViewReport = (pdfData, name) => {
+    try {
+      const blob = new Blob([Uint8Array.from(atob(pdfData), c => c.charCodeAt(0))], {
+        type: 'application/pdf'
+      });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error viewing report:', error);
+      alert('Error opening PDF report');
+    }
+  };
 
   const handleSendEmail = (reportName) => {
-    alert(`📩 Sending ${reportName} to your email...`);
+    // You can implement email functionality here
+    alert(`📩 Sending ${reportName} to your registered email address...`);
+    // TODO: Implement actual email sending functionality
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-center">
+        <div className="bg-red-100 text-red-700 p-4 rounded-lg">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!reports.length) {
+    return (
+      <div className="p-4 text-center">
+        <div className="bg-gray-100 text-gray-700 p-4 rounded-lg">
+          No reports found
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <section className="w-[90vw] mx-auto p-6 bg-white rounded-lg shadow-lg">
@@ -132,7 +131,7 @@ const Reports = () => {
             <tr>
               <th className="py-3 px-4 border">Sr No</th>
               <th className="py-3 px-4 border">Report Name</th>
-              <th className="py-3 px-4 border">Download</th>
+              <th className="py-3 px-4 border" >Download</th>
               <th className="py-3 px-4 border">Send to Email</th>
             </tr>
           </thead>
@@ -143,7 +142,7 @@ const Reports = () => {
                 <td className="py-3 px-4 border text-center">{report.name}</td> {/* ✅ Centered Report Name */}
                 <td className="py-3 px-4 border text-center">
                   <div className="flex justify-center">
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition">
+                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition" onClick= {handleViewReport(report.pdfData, report.name)}>
                       Download
                     </button>
                   </div>

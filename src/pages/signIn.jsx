@@ -1,9 +1,82 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleLeft } from "@fortawesome/free-solid-svg-icons";
 import SignIn from "../assets/signin_vector.jpg";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Signin = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { SignIn: signIn, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If user is already logged in, redirect to their dashboard
+    if (user) {
+      switch (user.role.toUpperCase()) {
+        case "PATIENT":
+          navigate("/patient-dashboard");
+          break;
+        case "DOCTOR":
+          navigate("/doctor-dashboard");
+          break;
+        case "RECEPTIONIST":
+          navigate("/reception-dashboard");
+          break;
+        case "ADMIN":
+          navigate("/admin-dashboard");
+          break;
+        default:
+          navigate("/");
+      }
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        username: email,
+        password: password
+      }, {
+        withCredentials: true
+      });
+
+      if (response.data.status === "success") {
+        const userData = {
+          username: response.data.username,
+          role: response.data.role
+        };
+        signIn(userData);
+
+        // Redirect based on role
+        switch (response.data.role.toUpperCase()) {
+          case "PATIENT":
+            navigate("/patient-dashboard");
+            break;
+          case "DOCTOR":
+            navigate("/doctor-dashboard");
+            break;
+          case "RECEPTIONIST":
+            navigate("/reception-dashboard");
+            break;
+          case "ADMIN":
+            navigate("/admin-dashboard");
+            break;
+          default:
+            navigate("/");
+        }
+      }
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to sign in");
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-white relative px-4 sm:px-0">
       {/* Back Arrow */}
@@ -28,13 +101,22 @@ const Signin = () => {
         <div className="w-full sm:w-1/2 p-8">
           <h2 className="text-2xl font-semibold text-center text-gray-700">SIGN IN</h2>
 
-          <form className="mt-4">
+          {error && (
+            <div className="mt-4 p-2 bg-red-100 text-red-600 rounded-lg text-sm text-center">
+              {error}
+            </div>
+          )}
+
+          <form className="mt-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-gray-600 text-sm">Email</label>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter your email"
+                required
               />
             </div>
 
@@ -42,8 +124,11 @@ const Signin = () => {
               <label className="block text-gray-600 text-sm">Password</label>
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter your password"
+                required
               />
             </div>
 

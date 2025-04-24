@@ -1,12 +1,14 @@
 // src/App.js
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from './context/AuthContext';
 import LandingPage from "./pages/LandingPage.jsx";
 import PatientDashboard from "./pages/PatientDashboard.jsx";
 import DoctorDashboard from "./pages/DoctorDashboard.jsx";
-import ReceptionDashboard from "./pages/ReceptionDashboard";  // Import the Reception Dashboard
-import SignUp from "./pages/signUp.jsx"; // Import your Sign In page
-import SignIn from "./pages/signIn.jsx"; // Import your Sign In page
+import ReceptionDashboard from "./pages/ReceptionDashboard";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import SignUp from "./pages/signUp.jsx";
+import SignIn from "./pages/signIn.jsx";
 import DiagnosticUi from "./components/DiagnosticUi.jsx";
 import SonographyPage from "./pages/SonographyPage";
 import USGPelvisPage from "./pages/USGPelvisPage";
@@ -28,47 +30,55 @@ import CarotidDopplerPage from './pages/CarotidDopplerPage.jsx';
 import RenalDopplerPage from './pages/RenalDopplerPage.jsx';
 import ScrotumDopplerPage from './pages/ScrotumDopplerPage.jsx';
 import ObsPregnancyDopplerPage from './pages/ObsPregnancyDopplerPage.jsx';
+import PrivateRoute from './components/PrivateRoute.js';
+import './index.css';
+import './styles.css';
 
-import './index.css'; // Tailwind and global styles
-import './styles.css'; // Custom styles (header, card, button, etc.)
-
-// const App = () => {
-//   const [notificationCount] = useState(3); // You can adjust this dynamically based on the data
-
-//   return (
-//     <div>
-//       <Header notificationCount={notificationCount} />
-//       <main className="mt-24">
-//         {/* Appointment Section */}
-//         <Appointment />
-
-//         {/* Reports Section */}
-//         <Reports />
-
-//         {/* Feedback Section */}
-//         <Feedback />
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default App;
-
-// // 
-
-
-
-
-function App() {
+function AppContent() {
   return (
-    
+    <Router>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/signIn" element={<SignIn />} />
+        <Route path="/signUp" element={<SignUp />} />
+        <Route
+          path="/reception-dashboard"
+          element={
+            <PrivateRoute requiredRole="RECEPTIONIST">
+              <ReceptionDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/patient-dashboard"
+          element={
+            <PrivateRoute requiredRole="PATIENT">
+              <PatientDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/doctor-dashboard"
+          element={
+            <PrivateRoute requiredRole="DOCTOR">
+              <DoctorDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <PrivateRoute requiredRole="ADMIN">
+              <AdminDashboard />
+            </PrivateRoute>
+          }
+        />
         <Route path="/Diagnosis" element={<DiagnosticUi />} />
         <Route path="/usg-obs" element={<USGObsPage />} />
-        <Route path="carotid-doppler" element={<CarotidDopplerPage />} />
-        <Route path="scrotum-doppler" element={<ScrotumDopplerPage />} />
-        <Route path="renal-doppler" element={<RenalDopplerPage />} />
-        <Route path="obsPregnancy-doppler" element={<ObsPregnancyDopplerPage />} />
+        <Route path="/carotid-doppler" element={<CarotidDopplerPage />} />
+        <Route path="/scrotum-doppler" element={<ScrotumDopplerPage />} />
+        <Route path="/renal-doppler" element={<RenalDopplerPage />} />
+        <Route path="/obsPregnancy-doppler" element={<ObsPregnancyDopplerPage />} />
         <Route path="/usg-prostate" element={<USGProstatePage />} />
         <Route path="/usg-kub-male" element={<USGKUBMale />} />
         <Route path="/usg-prepost-void" element={<USGPrePostVoid />} />
@@ -83,16 +93,19 @@ function App() {
         <Route path="/usg-abd-pelvis" element={<USGAbdomenPelvis />} />
         <Route path="/sonography" element={<SonographyPage />} />
         <Route path="/X-Ray" element={<DigitalXrayPage />} />
-        <Route path="/" element={<LandingPage />} />
         <Route path="/ECG" element={<ECGPage />} />
-        <Route path="/patient-dashboard" element={<PatientDashboard />} />
-        <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-        <Route path="/reception-dashboard" element={<ReceptionDashboard />} />
-        <Route path="/signIn" element={<SignIn />} />
-        <Route path="/signUp" element={<SignUp />} />
       </Routes>
-    
+    </Router>
   );
 }
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
 export default App;
 

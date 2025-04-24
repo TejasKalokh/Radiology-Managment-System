@@ -41,7 +41,22 @@ const ReceptionDashboard = () => {
   useEffect(() => {
     const fetchTestData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/reception/getalltests');
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reception/getalltests`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          if (response.status === 403) {
+            // Redirect to login if unauthorized
+            window.location.href = '/signin';
+            return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
 
         // Initialize temporary objects
@@ -145,7 +160,7 @@ const ReceptionDashboard = () => {
     }
   
     try {
-      const response = await fetch('http://localhost:8080/api/reception/addpatient', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reception/addpatient`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -190,34 +205,25 @@ const ReceptionDashboard = () => {
   
     const fetchAppointments = async () => {
       try {
-        const walkInResponse = await fetch("http://localhost:8080/api/reception/walkinpatient");
-        const walkInData = await walkInResponse.json();
-        const appointmentResponse = await fetch("http://localhost:8080/api/reception/appoinmentpatient");
-        const appointmentData = await appointmentResponse.json();
-  
-        setOnlineAppointments(
-          appointmentData.map(appt => ({
-            id: `${appt.patient_id}`,
-            name: `${appt.patient_first_name} ${appt.patient_last_name}`,
-            age: appt.age,
-            testType: appt.test_type,
-            time: appt.test_time,
-          }))
-        );
-  
-        setOnVisitAppointments(
-          walkInData.map(patient => ({
-            id: `${patient.patient_id}`,
-            name: `${patient.patient_first_name} ${patient.patient_last_name}`,
-            age: patient.age,
-            testType: patient.test_type,
-            time: "Walk-in",
-          }))
-        );
-        console.log(setOnVisitAppointments);
-        console.log(setOnlineAppointments);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reception/appointments`, {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 403) {
+            window.location.href = '/signin';
+            return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setOnlineAppointments(data);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching appointments:", error);
       }
     };
   
